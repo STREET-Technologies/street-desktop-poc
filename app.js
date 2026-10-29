@@ -135,6 +135,7 @@ function render() {
   if (["catalogue", "saved"].includes(state.page))
     content = catalogueContent(state.variant === "shop");
   else if (state.page === "neighbourhoods") content = neighbourhoods();
+  else if (state.page === "area") content = LocalExplorer();
   else
     content =
       state.variant === "hybrid"
@@ -266,9 +267,7 @@ document.addEventListener("click", (event) => {
       break;
     case "area-story":
       state.area = Number(value);
-      state.page = "discover";
-      state.variant = "local";
-      changeVariant("local");
+      navigate("area");
       break;
     case "save":
       state.saved.has(value)
