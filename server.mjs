@@ -11,6 +11,8 @@ const types = {
   ".jpg": "image/jpeg",
   ".ttf": "font/ttf",
   ".woff2": "font/woff2",
+  ".png": "image/png",
+  ".mp4": "video/mp4",
 };
 createServer(async (req, res) => {
   try {

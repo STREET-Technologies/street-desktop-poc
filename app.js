@@ -22,6 +22,7 @@ const descriptions = {
   local: "Neighbourhood guide + shop-by-shop browsing",
 };
 const params = new URLSearchParams(location.search);
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const state = {
   variant: variants.includes(params.get("variant"))
     ? params.get("variant")
@@ -37,10 +38,13 @@ const state = {
   selected: null,
   size: "",
   pending: null,
+  heroPaused: reducedMotion.matches,
 };
 const app = document.querySelector("#app");
 const modal = document.querySelector("#modal");
 let focusBeforeModal;
+let cleanupHeroVideo = () => {};
+let updateHeroPlayback = () => {};
 const icons = {
   pin: '<path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.5"/>',
   search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
@@ -49,6 +53,8 @@ const icons = {
   bag: '<path d="M5 7h14l2 14H3L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/>',
   arrow: '<path d="M4 12h16m-6-6 6 6-6 6"/>',
   close: '<path d="m6 6 12 12M6 18 18 6"/>',
+  play: '<path d="m9 5 11 7-11 7V5Z"/>',
+  pause: '<path d="M8 5v14M16 5v14"/>',
   globe:
     '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>',
 };
@@ -93,7 +99,7 @@ function shopCards() {
   return `<div class="shop-list">${shops.map((s) => `<button class="shop-card" aria-label="Shop ${s.name}" data-action="shop" data-value="${s.id}"><img src="assets/${s.image}" alt="Illustrative neighbourhood photography" loading="lazy"><div><h3>${s.name}</h3><span class="shop-category">${s.category}</span><p>${s.note}</p><span class="text-link">Explore the shop ${icon("arrow")}</span></div></button>`).join("")}</div>`;
 }
 function Hybrid() {
-  return `<section class="hybrid-hero"><div class="hero-copy"><h1>Your high <br>street. <br><span>A little closer.</span></h1><p>The shops you love. The ones you’re yet to find.<br>A whole neighbourhood, at your fingertips.</p><div class="hero-actions"><button class="primary" data-action="nav" data-value="catalogue">Find your next good thing ${icon("arrow")}</button><button class="text-link" data-action="nav" data-value="neighbourhoods">Take a look around</button></div></div><div class="hero-photo"><img src="assets/high-street-style.png" alt="A woman in a black outfit walking with bright lime shopping bags" width="1536" height="1024" fetchpriority="high" decoding="async"></div></section>
+  return `<section class="hybrid-hero hybrid-hero--editorial"><div class="hero-copy"><h1>Your high <br>street. <br><span>A little closer.</span></h1><p>The shops you love. The ones you’re yet to find.<br>A whole neighbourhood, at your fingertips.</p><div class="hero-actions"><button class="primary" data-action="nav" data-value="catalogue">Find your next good thing ${icon("arrow")}</button><button class="text-link" data-action="nav" data-value="neighbourhoods">Take a look around</button></div></div><div class="hero-photo hero-editorial"><img src="assets/product-editorial-poster.jpg" alt="A green dress from the illustrative fashion editorial" width="1280" height="720" fetchpriority="high" decoding="async"><video id="hero-video" muted loop playsinline preload="none" poster="assets/product-editorial-poster.jpg" aria-label="Illustrative fashion, footwear, jewellery and fragrance editorial"><source src="assets/product-editorial.mp4" type="video/mp4"></video><button class="video-control" data-action="hero-playback" aria-controls="hero-video">${icon(state.heroPaused ? "play" : "pause")}<span>${state.heroPaused ? "Play" : "Pause"} video</span></button></div></section>
   ${productSection()}
   <section class="section"><div class="section-heading"><div><h2>Every street has a story.</h2></div><span class="muted">Pick a neighbourhood. See what you find.</span></div>${areaCards()}</section><section class="section"><div class="section-heading"><div><h2>Meet your next favourite.</h2></div><span class="sample-note">Illustrative shops for this concept</span></div>${shopCards()}</section>`;
 }
@@ -131,6 +137,7 @@ function switcher() {
   return `<aside class="prototype-switcher" aria-label="Prototype layout switcher"><div class="switcher-label"><span class="prototype-dot"></span><b>Compare layouts</b></div><button data-action="cycle" data-value="-1" aria-label="Previous concept">←</button><div class="variant-summary"><strong>${String(variants.indexOf(state.variant) + 1).padStart(2, "0")} / ${variantNames[state.variant]}</strong><small>${descriptions[state.variant]}</small></div><button data-action="cycle" data-value="1" aria-label="Next concept">→</button><button class="switcher-info" data-action="about" aria-label="About this prototype">?</button></aside>`;
 }
 function render() {
+  cleanupHeroVideo();
   let content;
   if (["catalogue", "saved"].includes(state.page))
     content = catalogueContent(state.variant === "shop");
@@ -144,7 +151,67 @@ function render() {
           ? ShopFirst()
           : LocalExplorer();
   app.innerHTML = `${header()}<main id="main" class="frame" tabindex="-1">${content}</main><footer class="frame footer"><span class="footer-brand">STREET</span><div>Your high street. Delivered.<small>Discovery prototype · Fictional shops, illustrative products, sample pricing.<br>Neighbourhood photos are illustrative; no retailer partnerships implied.</small></div><button class="text-link" data-action="about">About this concept ${icon("arrow")}</button></footer>${switcher()}`;
+  setupHeroVideo();
 }
+function setupHeroVideo() {
+  cleanupHeroVideo = () => {};
+  updateHeroPlayback = () => {};
+  const video = document.querySelector("#hero-video");
+  if (!video) return;
+  const button = document.querySelector('[data-action="hero-playback"]');
+  const bounds = video.getBoundingClientRect();
+  let visible = bounds.bottom > 0 && bounds.top < window.innerHeight;
+  let disposed = false;
+  let failed = false;
+  const updateButton = () => {
+    const action = state.heroPaused ? "Play" : "Pause";
+    button.innerHTML = `${icon(state.heroPaused ? "play" : "pause")}<span>${action} video</span>`;
+    button.setAttribute("aria-label", `${action} editorial video`);
+  };
+  const refresh = () => {
+    if (disposed || failed) return;
+    updateButton();
+    if (state.heroPaused || !visible || document.hidden) video.pause();
+    else {
+      video.play().catch(() => {
+        if (disposed || !visible || document.hidden || state.heroPaused) return;
+        state.heroPaused = true;
+        updateButton();
+      });
+    }
+  };
+  video.muted = true;
+  video.addEventListener(
+    "error",
+    () => {
+      failed = true;
+      video.hidden = true;
+      button.hidden = true;
+    },
+    true,
+  );
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      visible = entry.isIntersecting;
+      refresh();
+    },
+    { threshold: 0.05 },
+  );
+  observer.observe(video);
+  document.addEventListener("visibilitychange", refresh);
+  updateHeroPlayback = refresh;
+  cleanupHeroVideo = () => {
+    disposed = true;
+    observer.disconnect();
+    document.removeEventListener("visibilitychange", refresh);
+    video.pause();
+  };
+  refresh();
+}
+reducedMotion.addEventListener("change", () => {
+  if (reducedMotion.matches) state.heroPaused = true;
+  updateHeroPlayback();
+});
 function closeModal() {
   modal.close();
   modal.innerHTML = "";
@@ -241,6 +308,10 @@ document.addEventListener("click", (event) => {
   if (!button) return;
   const value = button.dataset.value;
   switch (button.dataset.action) {
+    case "hero-playback":
+      state.heroPaused = !state.heroPaused;
+      updateHeroPlayback();
+      break;
     case "home":
       navigate("discover");
       break;
