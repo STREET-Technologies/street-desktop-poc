@@ -13,9 +13,9 @@ export const products = [
   { id: 'coat', name: 'Out-of-office layer', category: 'Clothing', price: 12500, shop: 'wardrobe', image: 'coat.jpg', colour: 'Neutral', sizes: ['XS', 'S', 'M', 'L'], description: 'A relaxed outer layer that takes you from a quick coffee to an unplanned afternoon out.' },
 ];
 export const areas = [
-  { name: 'Marylebone', postcode: 'W1U', image: 'marylebone.jpg', line: 'Small streets. Big discoveries.' },
-  { name: 'Notting Hill', postcode: 'W11', image: 'notting-hill.jpg', line: 'A different kind of colourful.' },
-  { name: 'Soho', postcode: 'W1F', image: 'soho.jpg', line: 'Follow your own direction.' },
+  { name: 'Marylebone', postcode: 'W1U', image: 'marylebone.jpg', line: 'Bookshops, boutiques and a village pace.', headline: ['Marylebone,', 'at your own pace.'], intro: 'Bookshops on the high street, boutiques along the lanes. Marylebone rewards a slower wander and a turn off the main road.' },
+  { name: 'Notting Hill', postcode: 'W11', image: 'notting-hill.jpg', line: 'Portobello, vintage and the unexpected.', headline: ['Notting Hill.', 'A taste for vintage.'], intro: 'Follow Portobello past the antiques and vintage rails, then wander towards Golborne Road. There’s more to Notting Hill than its painted houses.' },
+  { name: 'Soho', postcode: 'W1F', image: 'soho.jpg', line: 'Find your style off Carnaby Street.', headline: ['Soho never', 'dresses quietly.'], intro: 'Carnaby draws the crowds; Newburgh Street and the lanes around it are worth the detour. Explore the boutiques and tailoring that give Soho its own style.' },
 ];
 export const money = cents => new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: cents % 100 ? 2 : 0 }).format(cents / 100);
 export function filterProducts({ query = '', category = 'All', shop = '', saved = null, sort = 'edit' } = {}) {
