@@ -71,7 +71,9 @@ A production storefront is a separate project with auth, checkout, accounts, ord
 
 `npm test` checks filtering, size validation, integer-money basket totals, variant separation, and explicit shop switching. Browser smoke checks cover the shopping journey and layout switching. Screenshots live in `output/playwright/`.
 
-Hanson font and London photography were copied from `street.london/public/`. Illustrative product photos were downloaded from Unsplash:
+Hanson font and London photography were copied from `street.london/public/`. Barlow (400, 500, 600, 700, Latin subset) is self-hosted from the same Google Fonts assets used by the marketing site. Both surfaces share Hanson/Barlow, Street lime, cream, black, and the 8px/12px control/surface shapes; the PoC keeps shopping-specific density and navigation. Decorative heading labels, image stamps and repeated product badges have been removed.
+
+Illustrative product photos were downloaded from Unsplash:
 
 - Knit: `photo-1434389677669-e08b4cac3105`
 - Trainers: `photo-1549298916-b41d501d3772`
