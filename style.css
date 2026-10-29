@@ -178,13 +178,6 @@ p {
   padding: 0;
   white-space: nowrap;
 }
-.wordmark span {
-  font: 10px Arial;
-  letter-spacing: 0;
-  vertical-align: top;
-  display: inline-block;
-  margin: 5px 0 0 4px;
-}
 .header-divider {
   width: 1px;
   height: 33px;

@@ -66,7 +66,7 @@ const area = () => areas[state.area];
 const shopName = (id) => shops.find((s) => s.id === id).name;
 function header() {
   return `<div class="proof-strip"><span>Discussion concept · Sample shops & products · No live orders</span></div>
-  <header class="header frame"><button class="wordmark" data-action="home" aria-label="Street home">STREET<span>®</span></button><span class="header-divider"></span><button class="location-button" data-action="location">${icon("pin")}<span><small>Exploring</small><b>${area().name}, ${area().postcode} <span aria-hidden="true">⌄</span></b></span></button>
+  <header class="header frame"><button class="wordmark" data-action="home" aria-label="Street home">STREET</button><span class="header-divider"></span><button class="location-button" data-action="location">${icon("pin")}<span><small>Exploring</small><b>${area().name}, ${area().postcode} <span aria-hidden="true">⌄</span></b></span></button>
   <form id="search-form" class="search-form" role="search"><label class="sr-only" for="search">Search products or shops</label>${icon("search")}<input id="search" name="q" value="${escape(state.query)}" placeholder="Find your next good find"><button type="submit" aria-label="Search">↵</button></form>
   <button class="header-action" data-action="saved" aria-label="Saved items">${icon("heart")}<span>Saved${state.saved.size ? ` (${state.saved.size})` : ""}</span></button><button class="header-action" data-action="bag" aria-label="Shopping bag">${icon("bag")}<span>Bag</span><span class="count">${bagCount(state.bag)}</span></button></header>
   <div class="nav-line"><nav class="frame nav" aria-label="Main navigation"><div>${[
@@ -142,7 +142,7 @@ function render() {
         : state.variant === "shop"
           ? ShopFirst()
           : LocalExplorer();
-  app.innerHTML = `${header()}<main id="main" class="frame" tabindex="-1">${content}</main><footer class="frame footer"><span class="footer-brand">STREET®</span><div>Your high street. Delivered.<small>Discovery prototype · Fictional shops, illustrative products, sample pricing.<br>Neighbourhood photos are illustrative; no retailer partnerships implied.</small></div><button class="text-link" data-action="about">About this concept ${icon("arrow")}</button></footer>${switcher()}`;
+  app.innerHTML = `${header()}<main id="main" class="frame" tabindex="-1">${content}</main><footer class="frame footer"><span class="footer-brand">STREET</span><div>Your high street. Delivered.<small>Discovery prototype · Fictional shops, illustrative products, sample pricing.<br>Neighbourhood photos are illustrative; no retailer partnerships implied.</small></div><button class="text-link" data-action="about">About this concept ${icon("arrow")}</button></footer>${switcher()}`;
 }
 function closeModal() {
   modal.close();
